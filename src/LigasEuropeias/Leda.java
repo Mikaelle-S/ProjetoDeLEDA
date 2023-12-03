@@ -6,9 +6,19 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
+import java.util.TreeMap;
+
 
 public class Leda {
+    //Adicionando ArrayList para armazenar partidas ordenadas pelo campo 'venue'
+    static ArrayList<String[]> sortedMatchesByVenue = new ArrayList<>();
+    // Adicionando ArrayList para armazenar partidas ordenadas pelo campo 'attendance'
+    static ArrayList<int[]> sortedMatchesByAttendance = new ArrayList<>();
+
 	public static void main(String[] args) throws IOException {
 
         // arquivo a ser trabalhado
@@ -203,35 +213,36 @@ public class Leda {
             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
             return;
         }
-
-        // variável recebe o número de partidas da Premier League com mais de 20k pessoas
+        
+        // Contar o número de partidas com mais de 20k de público
         int linesPLM20k = ProcessadorArquivo.contarLinhasMaisQue20K(matches_F1);
-        int aux4 = 0;
-        String[] matchesF2 = new String[linesPLM20k]; // array que guardará essas partidas
+        String[] matchesF2 = new String[linesPLM20k];
+
+        // HashMap para armazenar as partidas com mais de 20k de público
+        HashMap<String, String> matchesOver20k = new HashMap<>();
 
         try (PrintWriter writerMatchesF2 = new PrintWriter(new File("matches_F2.csv"))) {
 
             System.out.println("O arquivo matches_F2 será gravado\n");
-            
-            StringBuilder strb4 = new StringBuilder();
-            strb4.append(lineIndices+"\n");
 
             // laço que percorrerá o número de partidas com mais de 20k de público
             for (int i = 0; i < matches_F1.length; i++) {
 
-                /* se o retorno da função formatarPublico for maior que 20000, seu conteúdo é 
-                adicionado no StringBuilder*/
+                // se o retorno da função formatarPublico for maior que 20000
                 if (ProcessadorArquivo.formatarInteiros(matches_F1[i], 6) > 20000) {
-                    strb4.append(matches_F1[i]+"\n");
-                    matchesF2[aux4] = matches_F1[i];
-                    aux4++;
+                    // adiciona a partida ao HashMap
+                    matchesOver20k.put(matches_F1[i], lineIndices + "\n" + matches_F1[i]);
+                    // adiciona a partida ao array matchesF2
+                    matchesF2[matchesOver20k.size() - 1] = matches_F1[i];
                 }
             }
+
             Temporizador.pausar3Segundos();
 
-            writerMatchesF2.write(strb4.toString());
+            // Escrever as partidas no arquivo
+            writerMatchesF2.write(String.join("\n", matchesOver20k.values()));
             writerMatchesF2.close();
-            
+
             System.out.println("\nO arquivo matches_F2 foi gravado no caminho: ProjetoDeLEDA/matches_F2.csv\n");
             Temporizador.pausar1Segundo(); // delay de transição para o próximo arquivo
 
@@ -239,7 +250,7 @@ public class Leda {
             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
             return;
         }
-
+        
         Scanner sc = new Scanner(System.in);
         int ordenar = -1;
         // laço do menu para decidir por qual coluna o arquivo será ordenado
@@ -300,7 +311,10 @@ public class Leda {
                             venuesInsertionSortMDC.write(sb.toString());
                             venuesInsertionSortMDC.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_insertionSort_medioCaso.csv' foi criado");
-                                
+                            
+                             // Adicionando as partidas ordenadas pelo campo 'venue' ao ArrayList
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -333,7 +347,7 @@ public class Leda {
                             venuesInsertionSortMLC.write(sb.toString());
                             venuesInsertionSortMLC.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_insertionSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -361,7 +375,7 @@ public class Leda {
                             venuesInsertionSortPRC.write(sb.toString());
                             venuesInsertionSortPRC.close();
                             System.out.println("O arquivo 'matches_t2_venues_insertionSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -389,7 +403,7 @@ public class Leda {
                             venuesSelectionSortMDC.write(sb.toString());
                             venuesSelectionSortMDC.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_selectionSort_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -420,7 +434,7 @@ public class Leda {
                             venuesSelectionSortMLC.write(sb.toString());
                             venuesSelectionSortMLC.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_selectionSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -446,7 +460,7 @@ public class Leda {
                             venuesSelectionSortPRC.write(sb.toString());
                             venuesSelectionSortPRC.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_selectionSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -474,7 +488,7 @@ public class Leda {
                             venuesBubbleSortMDC.write(sb.toString());
                             venuesBubbleSortMDC.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_bubbleSort_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -505,7 +519,7 @@ public class Leda {
                             venuesBubbleSortMLC.write(sb.toString());
                             venuesBubbleSortMLC.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_bubbleSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -531,7 +545,7 @@ public class Leda {
                             venuesBubbleSortPRC.write(sb.toString());
                             venuesBubbleSortPRC.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_bubbleSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -559,7 +573,7 @@ public class Leda {
                             venuesInsertionSortMDC.write(sb.toString());
                             venuesInsertionSortMDC.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_quickSort_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -590,7 +604,7 @@ public class Leda {
                             venuesInsertionSortMLC.write(sb.toString());
                             venuesInsertionSortMLC.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_quickSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -616,7 +630,7 @@ public class Leda {
                             venuesInsertionSortPRC.write(sb.toString());
                             venuesInsertionSortPRC.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_quickSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -641,7 +655,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_quickSortMedianaDe3_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -672,7 +686,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_quickSortMedianaDe3_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -698,7 +712,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("O arquivo 'matches_t2_venues_quickSortMedianaDe3_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -726,7 +740,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_mergeSort_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -757,7 +771,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_mergeSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -783,7 +797,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_mergeSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -811,7 +825,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_heapSort_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -842,7 +856,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_heapSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -868,7 +882,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_venues_heapSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByVenue.addAll(Arrays.asList(venueMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -925,6 +939,8 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_insertionSort_medioCaso.csv' foi criado");
+                            // Adicionando as partidas ordenadas pelo campo 'attendance' ao ArrayList
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                                 
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
@@ -955,7 +971,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_insertionSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -980,7 +996,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_insertionSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1009,7 +1025,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_selectionSort_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1040,7 +1056,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_selectionSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1065,7 +1081,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_selectionSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1094,7 +1110,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_bubbleSort_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1125,7 +1141,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_bubbleSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1150,7 +1166,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_bubbleSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1179,7 +1195,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_quickSort_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1210,7 +1226,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_quickSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1235,7 +1251,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_quickSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1261,7 +1277,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_quickSortMedianaDe3_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1292,7 +1308,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_quickSortMedianaDe3_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1317,7 +1333,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_quickSortMedianaDe3_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1346,7 +1362,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_mergeSort_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1377,7 +1393,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_mergeSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1402,7 +1418,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_mergeSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1431,7 +1447,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_heapSort_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1462,7 +1478,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_heapSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1487,7 +1503,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_heapSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1516,7 +1532,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_countingSort_medioCaso.csv' foi criado");
-                                
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));        
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1547,7 +1563,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_countingSort_melhorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1572,7 +1588,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_countingSort_piorCaso.csv' foi criado");
-                        
+                            sortedMatchesByAttendance.addAll(Arrays.asList(attendanceMDC));
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1586,6 +1602,8 @@ public class Leda {
                 break; 
 
                 case 3:
+                //Usando TreeMap para armazenar para armazenar dados associados às datas
+                TreeMap<Integer, String> sortedMatchesByDate = new TreeMap<>();
                 // laço para decidir qual algoritmo de ordenação será usado
                 while (ordenaçãoDate != 0) {
 
@@ -1628,6 +1646,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]); // Adiciona ao TreeMap
                             }
                             System.out.println("\nO médio caso para o Insertion Sort está sendo ordenado");
                             long tempo = System.currentTimeMillis();
@@ -1658,6 +1677,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             int j = datePRC.length-1;
                             for (int i = 0; i < dateMDC.length; i++) {
@@ -1667,7 +1687,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_attendance_full_date_melhorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1684,6 +1704,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             long tempo = System.currentTimeMillis();
                             OrdenadorInt.insertionSort(datePRC);
@@ -1692,7 +1713,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_insertionSort_piorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1712,6 +1733,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);        
                             }
                             System.out.println("\nO médio caso para o Selection Sort está sendo ordenado");
                             long tempo = System.currentTimeMillis();
@@ -1721,7 +1743,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_selectionSort_medioCaso.csv' foi criado");
-                                
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1743,6 +1765,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             int j = datePRC.length-1;
                             for (int i = 0; i < dateMDC.length; i++) {
@@ -1752,7 +1775,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_selectionSort_melhorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1769,6 +1792,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             long tempo = System.currentTimeMillis();
                             OrdenadorInt.selectionSort(datePRC);
@@ -1777,7 +1801,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_selectionSort_piorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1797,6 +1821,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             System.out.println("\nO médio caso para o Bubble Sort está sendo ordenado");
                             long tempo = System.currentTimeMillis();
@@ -1806,7 +1831,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_bubbleSort_medioCaso.csv' foi criado");
-                                
+                                    
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1828,6 +1853,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             int j = datePRC.length-1;
                             for (int i = 0; i < dateMDC.length; i++) {
@@ -1837,7 +1863,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_bubbleSort_melhorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1853,7 +1879,7 @@ public class Leda {
                                 sb.append(formattedFullDates[datePRC[i][1]]);
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
-                                }
+                                }sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             long tempo = System.currentTimeMillis();
                             OrdenadorInt.bubbleSort(datePRC);
@@ -1862,7 +1888,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_bubbleSort_piorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1882,6 +1908,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             System.out.println("\nO médio caso para o Quick Sort está sendo ordenado");
                             long tempo = System.currentTimeMillis();
@@ -1891,7 +1918,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_quickSort_medioCaso.csv' foi criado");
-                                
+                                    
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1913,6 +1940,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             int j = datePRC.length-1;
                             for (int i = 0; i < dateMDC.length; i++) {
@@ -1922,7 +1950,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_quickSort_melhorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1939,6 +1967,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             long tempo = System.currentTimeMillis();
                             OrdenadorInt.quickSort(datePRC, 0, datePRC.length-1);
@@ -1947,7 +1976,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_quickSort_piorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1964,6 +1993,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             System.out.println("\nO médio caso para o Quick Sort Mediana de 3 está sendo ordenado");
                             long tempo = System.currentTimeMillis();
@@ -1973,7 +2003,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_quickSortMedianaDe3_medioCaso.csv' foi criado");
-                                
+                                    
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -1995,6 +2025,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             int j = datePRC.length-1;
                             for (int i = 0; i < dateMDC.length; i++) {
@@ -2004,7 +2035,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_quickSortMedianaDe3_melhorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -2021,6 +2052,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             long tempo = System.currentTimeMillis();
                             OrdenadorInt.quickMedianaDe3(datePRC, 0, datePRC.length-1);
@@ -2029,7 +2061,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_quickSortMedianaDe3_piorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -2049,6 +2081,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             System.out.println("\nO médio caso para o Merge Sort está sendo ordenado");
                             long tempo = System.currentTimeMillis();
@@ -2058,7 +2091,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_mergeSort_medioCaso.csv' foi criado");
-                                
+                                    
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -2080,6 +2113,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             int j = datePRC.length-1;
                             for (int i = 0; i < dateMDC.length; i++) {
@@ -2089,7 +2123,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_mergeSort_melhorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -2106,6 +2140,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             long tempo = System.currentTimeMillis();
                             OrdenadorInt.mergeSort(datePRC, 0, datePRC.length-1);
@@ -2114,7 +2149,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_mergeSort_piorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -2134,6 +2169,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             System.out.println("\nO médio caso para o Heap Sort está sendo ordenado");
                             long tempo = System.currentTimeMillis();
@@ -2143,7 +2179,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_heapSort_medioCaso.csv' foi criado");
-                                
+                                    
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -2165,6 +2201,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             int j = datePRC.length-1;
                             for (int i = 0; i < dateMDC.length; i++) {
@@ -2174,7 +2211,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_heapSort_melhorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -2191,6 +2228,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             long tempo = System.currentTimeMillis();
                             OrdenadorInt.heapSort(datePRC);
@@ -2199,7 +2237,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_heapSort_piorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -2219,6 +2257,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             System.out.println("\nO médio caso para o Counting Sort está sendo ordenado");
                             long tempo = System.currentTimeMillis();
@@ -2228,7 +2267,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_countingSort_medioCaso.csv' foi criado");
-                                
+                                    
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -2250,6 +2289,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             int j = datePRC.length-1;
                             for (int i = 0; i < dateMDC.length; i++) {
@@ -2259,7 +2299,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_countingSort_melhorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -2276,6 +2316,7 @@ public class Leda {
                                 if (i != formattedFullDates.length-1) {
                                     sb.append("\n");
                                 }
+                                sortedMatchesByDate.put(ProcessadorArquivo.formarDataInt(fullDates[i]), formattedFullDates[i]);
                             }
                             long tempo = System.currentTimeMillis();
                             OrdenadorInt.countingSort(datePRC, datePRC.length);
@@ -2284,7 +2325,7 @@ public class Leda {
                             venues.write(sb.toString());
                             venues.close();
                             System.out.println("\nO arquivo 'matches_t2_full_date_countingSort_piorCaso.csv' foi criado");
-                        
+                            
                         } catch (Exception e) {
                             System.out.println("Erro: " + e.getMessage() + "\nOcorreu um erro com o arquivo");
                             return;
@@ -2292,6 +2333,7 @@ public class Leda {
                         System.out.println("_________________________________________________________________________________");
 
                         break;
+                        
                     }
                 }
                 break;
